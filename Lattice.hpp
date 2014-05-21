@@ -9,33 +9,36 @@
 
 namespace Sim{
 
-  const short HEIGHT = 16;
-  const short WIDTH = 32;
 
   template <typename SpinType= int>
   class Lattice {
     public:
+
+      const static int HEIGHT = 16;
+      const static int WIDTH  = 32;
+
       typedef SpinType spin_t;
-      spin_t& operator()(std::size_t row ,std::size_t col) { //row major
-        assert(row < Sim::HEIGHT && col < Sim::WIDTH);
-        return data_[row*Sim::WIDTH + col];
+
+      inline spin_t& operator()(std::size_t row ,std::size_t col) { //row major
+        assert(row < HEIGHT && col < WIDTH);
+        return data_[row*WIDTH + col];
       }
 
       //function which returns a const copy of the spin at the specified position
-      spin_t operator()(std::size_t row ,std::size_t col) const { //row major
-        assert(row < Sim::HEIGHT && col < Sim::WIDTH);
-        return data_[row*Sim::WIDTH + col];
+      inline spin_t operator()(std::size_t row ,std::size_t col) const { //row major
+        assert(row < HEIGHT && col < WIDTH);
+        return data_[row*WIDTH + col];
       }
 
       template<typename UnaryFunction>
-      void apply(UnaryFunction uf) {
+      void apply(UnaryFunction uf){
         for (spin_t& spin : data_) {
           uf(spin);
         }
       }
 
     private:
-      std::array<spin_t,Sim::HEIGHT*Sim::WIDTH> data_; //Store in row-major
+      std::array<spin_t,HEIGHT*WIDTH> data_; //Store in row-major
 
   };
 

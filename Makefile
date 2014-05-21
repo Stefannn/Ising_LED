@@ -4,23 +4,28 @@
 CC = g++
 
 #Compiler options
-CFLAGS=-std=c++11 -Wall -Wextra
+CFLAGS= -std=c++11 -Wall -Wextra
+LINKFLAGS= -lncurses
+HEADERS=Simulation.hpp AsciiViewer.hpp Lattice.hpp IsingPolicy.hpp
+
 
 all: isingLED tests
 
 isingLED: main.o
-	$(CC) main.o -o isingLED
+	$(CC) $(LINKFLAGS) main.o -o isingLED
 
 tests : tests.o
-	$(CC) tests.o -o tests
+	$(CC) $(LINKFLAGS) tests.o -o tests
 
-main.o: main.cpp Simulation.hpp
+main.o: main.cpp $(HEADERS)
 	$(CC) -c  $(CFLAGS) main.cpp
 
-tests.o: tests.cpp Simulation.hpp
+tests.o: tests.cpp $(HEADERS)
 	$(CC) -c $(CFLAGS) tests.cpp
+	
+
 
 clean:
-	rm -rf *.o isingLED
+	rm -rf *.o isingLED testing
 
 

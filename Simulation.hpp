@@ -1,4 +1,4 @@
-//Stefan Hegglin, May 14
+// May 14
 //
 #ifndef SIMULATION_HPP_
 #define SIMULATION_HPP_
@@ -18,11 +18,12 @@ namespace Sim {
 
 //Concepts required for ModelPolicy:
 // - Constructor: default
-// - must have void update_model(Lattice) function
+// - must have void update_model(Lattice&) function
+	// - must have (convertable to double) compute_Energy(Lattice&) function
 
 //Concepts required for VisualizationPolicy:
 // - Constructor: default
-// - must have void update_view(const Lattice) function
+// - must have void update_view(const Lattice&) function
 template <typename ModelPolicy, typename VisualizationPolicy>
 class Simulation: public ModelPolicy, public VisualizationPolicy  {
   public:
@@ -39,6 +40,10 @@ class Simulation: public ModelPolicy, public VisualizationPolicy  {
       ModelPolicy::update_model(lattice_);
       VisualizationPolicy::update_view(lattice_);
     }
+		
+		double get_energy()  {
+			return ModelPolicy::compute_Energy(lattice_);
+		}
 
     template <typename UnaryFunction>
     void init_lattice(UnaryFunction uf) {
@@ -47,6 +52,15 @@ class Simulation: public ModelPolicy, public VisualizationPolicy  {
 
     spin_t get_latticesite(std::size_t row, std::size_t col) const {
       return lattice_(row,col);
+    }
+		
+		void set_latticesite(std::size_t row, std::size_t col, spin_t val) {
+			lattice_(row,col) = val;
+			//put a update_view() here?
+		}
+		
+    const Sim::Lattice<spin_t>& get_lattice() {
+        return lattice_;
     }
 
 
