@@ -12,6 +12,7 @@
 #include "Lattice.hpp" //for the WIDTH & HEIGHT params
 
 #include <random>
+#include <chrono>
 #include <vector>
 #include <cassert>
 
@@ -30,7 +31,7 @@ namespace Sim {
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// IsingPolicy 	//only nearest neighbour couplings on 2dmesh, no externa field
+	// IsingPolicy 	//only nearest neighbour couplings on 2dmesh, no external field
 	template <typename Coupling = UniformCoupling<1>>
 	class IsingPolicy {
 	public:
@@ -38,33 +39,33 @@ namespace Sim {
 		typedef double real_t;
 		
 		
-		IsingPolicy(): engine_(11),row_distr_(0, Sim::Lattice<int>::HEIGHT-1),col_distr_(0,Sim::Lattice<int>::WIDTH-1), 
+		IsingPolicy(): engine_(std::chrono::steady_clock::now().time_since_epoch().count()), //seed with current time
+                   inv_temperature_(1.),
+                   row_distr_(0, Sim::Lattice<int>::HEIGHT-1),col_distr_(0,Sim::Lattice<int>::WIDTH-1), 
 									 accept_distr_(0.,1.), width_(Sim::Lattice<int>::WIDTH),height_(Sim::Lattice<int>::HEIGHT),
-									 inv_temperature_(1.), E_is_initialized(false), M_is_initialized(false)
+									 E_is_initialized(false), M_is_initialized(false)
 									 {
 									 }
 		
 		
 		template<typename SpinType>
 		void update_model(Sim::Lattice<SpinType>& lattice) {
-
-			
+      	
 			//Choose a random spin
 			std::size_t row = row_distr_(engine_);
 			std::size_t col = col_distr_(engine_);
 			
 			//compute energy change for the system with the flipped spin
-			//For every neighbour, dE = 2*J_ij TODO check
+			//For every neighbour, dE = 2*J_ij
 			real_t dE = 2 * (-1) * compute_4_neighbour_E(row,col,lattice);
 											
 			
-			//accept with p=min(1,exp(-T*dE))
+			//accept with p=min(1,exp(-invT*dE))
 			if (dE <= 0 || accept_distr_(engine_) < std::exp(-inv_temperature_*dE)) {
 				lattice(row,col) *= -1;
 				E_ += dE;
-                M_ += 2*(lattice(row,col));
+        M_ += 2*(lattice(row,col));
 			}
-			
 		}
 		
 		//energy calculation: could be optimized for certain types of couplings
@@ -119,6 +120,7 @@ namespace Sim {
 		const std::size_t height_;
 		
 		
+		
 		real_t get_Energy() const {
 			return E_;
 		}
@@ -137,8 +139,6 @@ namespace Sim {
 																+ J_(row,col,(row+1)%height_,col)        *lattice((row+1)%height_,col));			// up
 		}
 		
-		
-
 	
 	};
 

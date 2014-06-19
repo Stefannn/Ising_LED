@@ -3,9 +3,13 @@
 #include "Simulation.hpp"
 #include "IsingPolicy.hpp"
 #include "AsciiViewer.hpp"
+#include "LEDViewPolicy.hpp"
 
-//one test function per class
-//
+#include "LED/gpio.h"
+#include "LED/led-matrix.h"
+
+
+
 
 namespace Testing {
 
@@ -106,17 +110,42 @@ void LatticeTest() {
 
 
 
+
+
+//LED-test
+void LEDTest() {
+  GPIO io;
+  if (!io.Init())
+    std::cout << "io.Init failed\n";
+  RGBMatrix m(&io);
+  m.SetPixel(1,1,255,255,255);
+  std::cout << " SetPixel called\n";
+  m.UpdateScreen();
+  std::cout << " UpdateScreen called\n";
+  
+  std::cin.ignore();
+  m.UpdateScreen();
+  std::cin.ignore();
+  
+  m.ClearScreen();
+  m.UpdateScreen();
+  std::cout << "io initialized\n";
+}
+
+
+
 } //end namespace testing
 
 
 int main(int argc, char **argv) {
-  Testing::LatticeTest();
-  Testing::SimulationTest<Testing::TestModel,Testing::TestView>();
+  //Testing::LatticeTest();
+  //Testing::SimulationTest<Testing::TestModel,Testing::TestView>();
 	typedef Sim::UniformCoupling<-1> unif4;
-	Testing::SimulationTest<Sim::IsingPolicy<unif4>,Sim::AsciiViewer>();
+	//Testing::SimulationTest<Sim::IsingPolicy<unif4>,Sim::AsciiViewer>();
 	//Testing::SimulationTest<Sim::IsingPolicy<unif4>,Testing::TestView>();
   //Testing::IsingTest<Sim::IsingPolicy<unif4>,Testing::TestView>();
-	Testing::CriticalTemperatureTest<Sim::IsingPolicy<unif4>,Testing::TestView>();
+	//Testing::CriticalTemperatureTest<Sim::IsingPolicy<unif4>,Sim::LEDViewPolicy>();
+  Testing::CriticalTemperatureTest<Sim::IsingPolicy<unif4>,Testing::TestView>();
 	
 
   return 0;

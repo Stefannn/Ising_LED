@@ -5,7 +5,14 @@
 
 #include <iostream>
 #include "Lattice.hpp"
-#include <curses.h>
+
+
+#ifdef __APPLE__
+	#include <curses.h>
+#else
+	#include <ncurses.h>
+#endif
+
 #include <memory> //for shared_pt
 
 //Forwards lattice to cout

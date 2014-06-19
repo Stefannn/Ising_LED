@@ -19,7 +19,7 @@ namespace Sim {
 //Concepts required for ModelPolicy:
 // - Constructor: default
 // - must have void update_model(Lattice&) function
-	// - must have (convertable to double) compute_Energy(Lattice&) function
+// - must have (convertible to double) compute_Energy(Lattice&) function
 
 //Concepts required for VisualizationPolicy:
 // - Constructor: default
@@ -35,6 +35,12 @@ class Simulation: public ModelPolicy, public VisualizationPolicy  {
     }
 
 
+    void thermalize() {
+      int thermalizationSteps = 1e6;
+      for (int i = 0;i<thermalizationSteps;++i) {
+        ModelPolicy::update_model(lattice_);
+      }
+    }
 
     void update() {
       ModelPolicy::update_model(lattice_);
@@ -56,7 +62,6 @@ class Simulation: public ModelPolicy, public VisualizationPolicy  {
 		
 		void set_latticesite(std::size_t row, std::size_t col, spin_t val) {
 			lattice_(row,col) = val;
-			//put a update_view() here?
 		}
 		
     const Sim::Lattice<spin_t>& get_lattice() {
@@ -68,9 +73,6 @@ class Simulation: public ModelPolicy, public VisualizationPolicy  {
     Sim::Lattice<spin_t> lattice_;
     count_t x;
 };
-
-
-
 
 
 } //end namespace Sim
